@@ -35,11 +35,11 @@ if __name__ == "__main__":
 
     parser_status = subparsers.add_parser("status", help="Query Cloud Formation stack status")
     parser_status.add_argument("--stack-name", required=True,
-        help="name of this cloudformation stack")
+        help="name of this Cloud Formation stack")
 
     parser_deploy = subparsers.add_parser("update", help="Configure a Cloud Formation stack")
     parser_deploy.add_argument("--stack-name", required=True,
-        help="name of this cloudformation stack")
+        help="name of this Cloud Formation stack")
     parser_deploy.add_argument("--ssh-key-name", required=True,
         help="name of the ssh key used to log into ec2 instances")
     parser_deploy.add_argument("--efs-file-system-id", required=True,
@@ -51,22 +51,29 @@ if __name__ == "__main__":
 
     parser_instances = subparsers.add_parser("instances", help="Query test host instances")
     parser_instances.add_argument("--stack-name", required=True,
-        help="name of this cloudformation stack")
+        help="name of this Cloud Formation stack")
 
     parser_instanceconfig = subparsers.add_parser("instanceconfig",
         help="Update instances with test software")
     parser_instanceconfig.add_argument("--stack-name", required=True,
-        help="name of this cloudformation stack")
+        help="name of this Cloud Formation stack")
     parser_instanceconfig.add_argument("--efs-file-system-id", required=True,
         help="identifier for the file system")
+
+    parser_instanceconfig = subparsers.add_parser("remove",
+        help="Clean up Cloud Formation stack")
+    parser_instanceconfig.add_argument("--stack-name", required=True,
+        help="name of this Cloud Formation stack")
 
     args = parser.parse_args()
 
     stack_name = args.stack_name
-    client = boto3.client("cloudformation")
+
     if args.subparser_name == "status":
+        client = boto3.client("cloudformation")
         print(stack_status(client, stack_name))
     elif args.subparser_name == "update":
+        client = boto3.client("cloudformation")
         with open("config_efstest.json") as f:
             template_body = f.read()
         stack_kwargs = {
@@ -158,5 +165,9 @@ if __name__ == "__main__":
         )
         print("running fio server start")
         run_on_hosts(start_fio_command, timeout=2, failure_expected=True)
+    elif args.subparser_name == "remove":
+        client = boto3.client("cloudformation")
+        client.delete_stack(**{ "StackName": stack_name })
+        print("deleted stack %s" % stack_name)
     else:
         raise

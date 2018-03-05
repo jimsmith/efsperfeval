@@ -59,6 +59,13 @@ python3 clusterconfig.py instanceconfig \
     --efs-file-system-id=$EFS_EVAL_FILE_SYSTEM_ID
 ```
 
+
+When finished you can clean up the resources
+```
+python3 clusterconfig.py remove \
+    --stack-name=$EFS_EVAL_STACK_NAME
+```
+
 ## Running Experiments
 
 This command should be run on the control server
